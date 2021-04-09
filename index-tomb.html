@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - animation - keyframes</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			body {
+				background-color: #bfe3dd;
+				color: #000;
+			}
+
+			a {
+				color: #2983ff;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<div id="container"></div>
+			
+		<script type="module">
+
+			import * as THREE from './build/three.module.js';
+
+			//import Stats from './jsm/libs/stats.module.js';
+
+			import { OrbitControls } from './build/js/js/OrbitControls.js';
+			import { GLTFLoader } from './build/js/js/GLTFLoader.js';
+			//import { DRACOLoader } from './build/js/js/DRACOLoader.js';
+
+			let mixer;
+		
+			const clock = new THREE.Clock();
+			const container = document.getElementById( 'container' );
+
+			// 這兩行為FPS視窗, 用不太到
+			//const stats = new Stats();
+			//container.appendChild( stats.dom );
+
+			const renderer = new THREE.WebGLRenderer( { antialias: true } );
+			
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			container.appendChild( renderer.domElement );
+
+			const scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xbfe3dd );
+			//scene.background = new THREE.Color( 0xaaaaaa );
+
+			const camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 100 );
+			camera.position.set( 10, 10, 10 );
+
+			const controls = new OrbitControls( camera, renderer.domElement );
+			controls.target.set( 0, 0.5, 0 );
+			controls.update();
+			controls.enablePan = false;
+			controls.enableDamping = true;
+
+			scene.add( new THREE.HemisphereLight( 0xffffff, 0x000000, 0.4 ) );
+
+			const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+			dirLight.position.set( 5, 2, 8 );
+			scene.add( dirLight );
+
+		
+
+			// DRACOLoader 是用來壓縮檔案較大GLTF檔, 以確保瀏覽時流暢 (檔案小可以不用) 
+			//const dracoLoader = new DRACOLoader();
+			//dracoLoader.setDecoderPath( 'js/libs/draco/gltf/' );
+			
+
+			const loader = new GLTFLoader();
+			
+			//loader.setDRACOLoader( dracoLoader );
+			loader.load( 'tomb.glb', function ( gltf ) {
+				
+				const model = gltf.scene;
+				console.log(model)
+
+				model.position.set( -3.5, -0.8, 3.5);	// 需調整物件原點
+				model.rotation.x = -1.57;
+				model.scale.set( 0.0006,0.0006,0.0006 );// 需調整這個放大比例
+				
+				//model.scale.set( 0.01, 0.01, 0.01 );  
+
+				/*
+				model.traverse( function ( child ) {
+
+					if ( child.isMesh ) child.material.envMap = envMap;
+
+				} );
+				*/
+				
+				scene.add( model );
+				animate(model);
+
+
+			}, undefined, function ( e ) {
+				console.error( e );
+			} );
+
+			// ******************
+
+			loader.load( 'collision-world.glb', function ( gltf ) {
+
+				const model = gltf.scene;
+				model.position.set( 0, 0,0 );	// 需調整物件原點
+				model.scale.set( 0.2, 0.2, 0.2 );// 需調整這個放大比例
+			
+				//model.scale.set( 0.1, 0.1, 0.1 );  
+
+				/*
+				model.traverse( function ( child ) {
+
+					if ( child.isMesh ) child.material.envMap = envMap;
+
+				} );
+				*/
+				
+				scene.add( model );
+				animate(model);
+
+			})	
+
+				
+
+
+				
+
+
+
+
+
+			window.onresize = function () {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			};
+
+			const animate = function (model) {
+
+			//function animate() {
+
+				requestAnimationFrame( animate );
+				
+
+				const delta = clock.getDelta();
+
+			
+
+				controls.update();
+
+				//stats.update(); //關閉FPS視窗
+				
+
+				renderer.render( scene, camera );
+
+			}
+
+	
+
+
+		</script>
+
+	</body>
+
+</html>
